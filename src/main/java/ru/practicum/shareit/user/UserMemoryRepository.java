@@ -3,6 +3,8 @@ package ru.practicum.shareit.user;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.DataOperationException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.HashSet;
@@ -22,7 +24,6 @@ public class UserMemoryRepository implements UserRepository {
 
     @Override
     public Optional<User> getById(long userId) {
-
         return users.parallelStream()
                 .filter(user -> user.getId() == userId)
                 .findFirst();
@@ -37,11 +38,13 @@ public class UserMemoryRepository implements UserRepository {
 
     @Override
     public User crate(User user) {
+        testValid(user);
         // при добавлении нового пользователя, id переданного элемента неактуален, заменить
         user.setId(generateUserId());
         if (users.add(user)) {
             return user;
         } else {
+            rollbackUserId();
             throw new DataOperationException("Не удалось добавить пользователя. Неуникальный пользователь");
         }
     }
@@ -64,7 +67,21 @@ public class UserMemoryRepository implements UserRepository {
         return user;
     }
 
+    protected void testValid(User user) {
+        if (users.parallelStream()
+                .anyMatch(u ->
+                    (u.getName().equals(user.getName())) || (u.getEmail().equals(user.getEmail()))
+                )) {
+            throw new ValidationException("Неуникальный пользователь");
+        }
+
+    }
+
     private Long generateUserId() {
         return ++userId;
+    }
+
+    private void rollbackUserId() {
+        userId--;
     }
 }
