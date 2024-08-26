@@ -1,13 +1,11 @@
 package ru.practicum.shareit.item.model;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -18,6 +16,7 @@ public class Item {
     long id;
     @NotBlank
     String name;
+    @NotBlank
     String description;
     @NotNull
     User owner;

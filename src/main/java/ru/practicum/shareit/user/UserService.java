@@ -37,7 +37,10 @@ public class UserService {
     }
 
     public UserDto updateUser(UserDto newUser) {
-        deepValidate(newUser);
+        // при обновлении, email контролируется только если он заполнен
+        if (null != newUser.getEmail()) {
+            deepValidate(newUser);
+        }
         User oldUser = userRepository.getById(newUser.getId())
                 .orElseThrow(() -> new NotFoundException(String.format("Обновление невозможно, переданный id %d пользователя не найден", newUser.getId())));
 
@@ -53,7 +56,6 @@ public class UserService {
         // плохо если:
         // пользователь по email найден, при этом
         // у DTO объекта id = 0 ИЛИ у DTO объекта id != id найденного пользователя
-
         if ((user.isPresent()) && ((userDto.getId() == 0) || (user.get().getId() != userDto.getId()))) {
             throw new ValidationException("Адрес почты пользователя не уникален");
         }

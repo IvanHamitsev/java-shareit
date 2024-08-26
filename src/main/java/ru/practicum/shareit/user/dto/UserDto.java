@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,9 +18,9 @@ public class UserDto {
     long id = 0; // акцентирую внимание, что id не заполнен
     @NotBlank
     String name;
+    @NotBlank
     @Email
     String email;
-    @NotNull
     @Past
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDate birthday;

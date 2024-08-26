@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 

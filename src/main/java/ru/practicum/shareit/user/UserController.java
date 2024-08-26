@@ -30,8 +30,9 @@ public class UserController {
         return userService.createUser(userDto);
     }
 
-    @PutMapping
-    public UserDto updateUser(@Valid @RequestBody UserDto userDto) {
+    @PatchMapping("/{id}")
+    public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable long id) {
+        userDto.setId(id);
         return userService.updateUser(userDto);
     }
 

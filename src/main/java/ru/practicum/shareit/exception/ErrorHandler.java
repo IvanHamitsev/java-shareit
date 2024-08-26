@@ -1,6 +1,5 @@
 package ru.practicum.shareit.exception;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,9 +25,16 @@ public class ErrorHandler {
         return new ErrorResponse("error", exception.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler
     public ErrorResponse badRequest(final ValidationException exception) {
+        log.info(exception.getMessage(), exception);
+        return new ErrorResponse("error", exception.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler
+    public ErrorResponse forbiddenRequest(final ForbiddenException exception) {
         log.info(exception.getMessage(), exception);
         return new ErrorResponse("error", exception.getMessage());
     }
@@ -39,10 +45,4 @@ public class ErrorHandler {
         log.warn(Arrays.toString(exception.getStackTrace()));
         return new ErrorResponse("", exception.getMessage());
     }
-}
-
-@Data
-class ErrorResponse {
-    private final String error;
-    private final String description;
 }

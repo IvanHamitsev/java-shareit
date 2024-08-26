@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user.model;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,10 +18,10 @@ public class User {
     long id;
     @NotBlank
     String name;
+    @NotBlank
     @Email
     String email;
     String login;
-    @NotNull
     @Past
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDate birthday;

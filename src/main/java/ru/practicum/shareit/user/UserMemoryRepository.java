@@ -4,7 +4,6 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.DataOperationException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.HashSet;
@@ -32,7 +31,13 @@ public class UserMemoryRepository implements UserRepository {
     @Override
     public Optional<User> getByEmail(String email) {
         return users.parallelStream()
-                .filter(user -> user.getEmail().equals(email))
+                .filter(user -> {
+                    if (user.getEmail() != null) {
+                        return user.getEmail().equals(email);
+                    } else {
+                        return false;
+                    }
+                })
                 .findFirst();
     }
 
@@ -51,12 +56,15 @@ public class UserMemoryRepository implements UserRepository {
 
     @Override
     public User update(User oldUser, User newUser) {
+        // судя по тестам, переданный пользователь должен дополнить, а не заменить исходного
+        patchUser(newUser, oldUser);
         if (users.remove(oldUser) && users.add(newUser)) {
             return newUser;
         } else {
             throw new DataOperationException("Не удалось обновить пользователя");
         }
     }
+
 
     @Override
     public User delete(long userId) {
@@ -70,11 +78,26 @@ public class UserMemoryRepository implements UserRepository {
     protected void testValid(User user) {
         if (users.parallelStream()
                 .anyMatch(u ->
-                    (u.getName().equals(user.getName())) || (u.getEmail().equals(user.getEmail()))
+                        (u.getName().equals(user.getName())) || (u.getEmail().equals(user.getEmail()))
                 )) {
             throw new ValidationException("Неуникальный пользователь");
         }
 
+    }
+
+    public void patchUser(User newUser, User oldUser) {
+        if (newUser.getName() == null) {
+            newUser.setName(oldUser.getName());
+        }
+        if (newUser.getEmail() == null) {
+            newUser.setEmail(oldUser.getEmail());
+        }
+        if (newUser.getBirthday() == null) {
+            newUser.setBirthday(oldUser.getBirthday());
+        }
+        if (newUser.getLogin() == null) {
+            newUser.setLogin(oldUser.getLogin());
+        }
     }
 
     private Long generateUserId() {
