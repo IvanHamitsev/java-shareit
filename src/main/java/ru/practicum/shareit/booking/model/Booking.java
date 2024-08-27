@@ -23,9 +23,9 @@ public class Booking {
     @NotNull
     BookingStatusType status;
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime bookingStart;
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime bookingEnd;
 }

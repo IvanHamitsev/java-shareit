@@ -32,7 +32,7 @@ public class ItemMemoryRepository implements ItemRepository {
             return item;
         } else {
             rollbackItemId();
-            throw new DataOperationException("Не удалось добавить лот.");
+            throw new DataOperationException("Не удалось добавить лот itemId = " + item.getId());
         }
     }
 
@@ -42,7 +42,7 @@ public class ItemMemoryRepository implements ItemRepository {
         if (items.remove(oldItem) && items.add(newItem)) {
             return newItem;
         } else {
-            throw new DataOperationException("Не удалось обновить лот");
+            throw new DataOperationException("Не удалось обновить лот itemId = " + oldItem.getId());
         }
     }
 

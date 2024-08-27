@@ -22,6 +22,6 @@ public enum BookingStatusType {
         if (value.equals("APPROVED")) return APPROVED;
         if (value.equals("REJECTED")) return REJECTED;
         if (value.equals("CANCELED")) return CANCELED;
-        return WAITING;
+        throw new IllegalArgumentException("Некорректный аргумент " + value);
     }
 }

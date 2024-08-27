@@ -50,7 +50,8 @@ public class UserMemoryRepository implements UserRepository {
             return user;
         } else {
             rollbackUserId();
-            throw new DataOperationException("Не удалось добавить пользователя. Неуникальный пользователь");
+            throw new DataOperationException(String
+                    .format("Не удалось добавить пользователя. Неуникальный пользователь userId = %d", user.getId()));
         }
     }
 
@@ -61,7 +62,8 @@ public class UserMemoryRepository implements UserRepository {
         if (users.remove(oldUser) && users.add(newUser)) {
             return newUser;
         } else {
-            throw new DataOperationException("Не удалось обновить пользователя");
+            throw new DataOperationException(String
+                    .format("Не удалось обновить пользователя userId = %d", oldUser.getId()));
         }
     }
 
@@ -80,7 +82,7 @@ public class UserMemoryRepository implements UserRepository {
                 .anyMatch(u ->
                         (u.getName().equals(user.getName())) || (u.getEmail().equals(user.getEmail()))
                 )) {
-            throw new ValidationException("Неуникальный пользователь");
+            throw new ValidationException(String.format("Неуникальный пользователь userId = %d", user.getId()));
         }
 
     }

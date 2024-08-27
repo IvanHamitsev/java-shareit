@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 
@@ -17,10 +17,10 @@ import java.time.LocalDateTime;
 public class ItemResponseDto {
     long id;
     @NotNull
-    User responseUser;
+    UserDto responseUser;
     String description;
     @NotNull
     @Past
-    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime responseDate;
 }

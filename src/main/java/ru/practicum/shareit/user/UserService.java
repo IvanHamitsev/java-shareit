@@ -42,7 +42,8 @@ public class UserService {
             deepValidate(newUser);
         }
         User oldUser = userRepository.getById(newUser.getId())
-                .orElseThrow(() -> new NotFoundException(String.format("Обновление невозможно, переданный id %d пользователя не найден", newUser.getId())));
+                .orElseThrow(() -> new NotFoundException(String
+                        .format("Обновление невозможно, переданный id %d пользователя не найден", newUser.getId())));
 
         return UserMapper.mapUser(userRepository.update(oldUser, UserMapper.mapUserDto(newUser)));
     }
@@ -57,7 +58,8 @@ public class UserService {
         // пользователь по email найден, при этом
         // у DTO объекта id = 0 ИЛИ у DTO объекта id != id найденного пользователя
         if ((user.isPresent()) && ((userDto.getId() == 0) || (user.get().getId() != userDto.getId()))) {
-            throw new ValidationException("Адрес почты пользователя не уникален");
+            throw new ValidationException(String
+                    .format("Адрес почты %s пользователя userId = %d не уникален", userDto.getEmail(), userDto.getId()));
         }
     }
 }

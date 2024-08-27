@@ -24,6 +24,6 @@ public class ItemRequest {
     String description;
     @NotNull
     @Past
-    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime requestDate;
 }

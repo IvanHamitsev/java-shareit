@@ -21,6 +21,6 @@ public class ItemResponse {
     String description;
     @NotNull
     @Past
-    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime responseDate;
 }
