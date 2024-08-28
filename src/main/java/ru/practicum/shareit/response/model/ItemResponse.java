@@ -1,6 +1,5 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.response.model;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.AccessLevel;
@@ -8,19 +7,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemRequestDto {
+public class ItemResponse {
     long id;
-    @NotBlank
-    String name;
+    @NotNull
+    User responseUser;
     String description;
     @NotNull
     @Past
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    LocalDateTime requestDate;
+    LocalDateTime responseDate;
 }
