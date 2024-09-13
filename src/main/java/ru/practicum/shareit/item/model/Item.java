@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -10,20 +9,30 @@ import ru.practicum.shareit.user.model.User;
 @Getter
 @Setter
 @EqualsAndHashCode(of = {"id"})
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
+@Entity
+@Table(name = "ITEMS", schema = "public")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Item {
+    @Id
+    @Column(name = "ITEM_ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @NotBlank
+    @Column(name = "NAME", nullable = false)
     String name;
-    @NotBlank
+    @Column(name = "DESCRIPTION", nullable = false)
     String description;
-    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "USER_ID", nullable = false)
     User owner;
     // если вещь добавлена по запросу
+    @ManyToOne
+    @JoinColumn(name = "ITEM_REQ_ID")
     ItemRequest request;
-    @NotNull
+    @Column(name = "IS_AVAILABLE_FOR_RENT", nullable = false)
     Boolean isAvailableForRent;
-    @NotNull
+    @Column(name = "IS_RENTED", nullable = false)
     Boolean isRented;
 }

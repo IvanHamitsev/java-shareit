@@ -11,6 +11,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,34 +23,36 @@ public class ItemService {
     private final UserRepository userRepository;
 
     public List<ItemDto> getAllItems(Long userId) {
-        List<Item> itemList = itemRepository.getAllByOwnerId(userId);
+        List<Item> itemList = itemRepository.findByOwnerId(userId);
         return itemList.parallelStream()
                 .map(ItemMapper::mapItem)
                 .collect(Collectors.toList());
     }
 
     public ItemDto getById(long itemId) {
-        return ItemMapper.mapItem(itemRepository.getById(itemId)
+        return ItemMapper.mapItem(itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Лот не найден itemId = " + itemId)));
     }
 
     public ItemDto createItem(ItemDto itemDto, long userId) {
-        User user = userRepository.getById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Не найден хозяин вещи c userId = " + userId));
         Item item = ItemMapper.mapItemDto(itemDto, user);
-        return ItemMapper.mapItem(itemRepository.create(item));
+        return ItemMapper.mapItem(itemRepository.save(item));
     }
 
     public ItemDto updateItem(ItemDto itemDto, long userId) {
-        Item oldItem = itemRepository.getById(itemDto.getId())
+        Item oldItem = itemRepository.findById(itemDto.getId())
                 .orElseThrow(() -> new NotFoundException("Обновляемый лот не найден itemId = " + itemDto.getId()));
         // изменения может вносить только хозяин
         testOwner(oldItem, userId);
-        return ItemMapper.mapItem(itemRepository.update(oldItem, ItemMapper.mapItemDto(itemDto, oldItem.getOwner())));
+        Item newItem = ItemMapper.mapItemDto(itemDto, oldItem.getOwner());
+        patchItem(newItem, oldItem);
+        return ItemMapper.mapItem(itemRepository.save(newItem));
     }
 
     public ItemDto deleteItemById(long userId, long itemId) {
-        Item item = itemRepository.getById(itemId)
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Удаляемый элемент не найден itemId = " + itemId));
         // удаление разрешено только хозяину
         testOwner(item, userId);
@@ -58,9 +61,12 @@ public class ItemService {
     }
 
     public List<ItemDto> searchItems(long userId, String text) {
-        User user = userRepository.getById(userId)
+        if ((text == null) || (text.isEmpty())) {
+            return new ArrayList<>();
+        }
+        userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException("Неизвестный пользователь c userId = " + userId));
-        List<Item> itemList = itemRepository.serchItems(text);
+        List<Item> itemList = itemRepository.searchItems(text);
         return itemList.parallelStream()
                 .map(ItemMapper::mapItem)
                 .toList();
@@ -70,6 +76,27 @@ public class ItemService {
         if (item.getOwner().getId() != ownerId) {
             throw new ForbiddenException("Изменения лота возможны только хозяином, " +
                     "пользователь не хозяин userId = " + item.getOwner().getId());
+        }
+    }
+
+    public void patchItem(Item newItem, Item oldItem) {
+        if (newItem.getName() == null) {
+            newItem.setName(oldItem.getName());
+        }
+        if (newItem.getDescription() == null) {
+            newItem.setDescription(oldItem.getDescription());
+        }
+        if (newItem.getRequest() == null) {
+            newItem.setRequest(oldItem.getRequest());
+        }
+        if (newItem.getIsAvailableForRent() == null) {
+            newItem.setIsAvailableForRent(oldItem.getIsAvailableForRent());
+        }
+        if (newItem.getIsRented() == null) {
+            newItem.setIsRented(oldItem.getIsRented());
+        }
+        if (newItem.getOwner() == null) {
+            newItem.setOwner(oldItem.getOwner());
         }
     }
 }

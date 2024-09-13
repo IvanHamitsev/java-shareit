@@ -1,12 +1,9 @@
 package ru.practicum.shareit.response.model;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -14,13 +11,23 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "ITEM_RESPONSES", schema = "public")
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemResponse {
+    @Id
+    @Column(name = "ITEM_RESP_ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "USER_ID", nullable = false)
     User responseUser;
+    @ManyToOne
+    @JoinColumn(name = "ITEM_ID", nullable = false)
+    Item item;
+    @Column(name = "DESCRIPTION")
     String description;
-    @NotNull
-    @Past
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "RESPONSE_DATE", nullable = false)
     LocalDateTime responseDate;
 }

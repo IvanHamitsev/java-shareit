@@ -1,11 +1,8 @@
 package ru.practicum.shareit.booking.model;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -14,18 +11,26 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "BOOKINGS", schema = "public")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Booking {
+    @Id
+    @Column(name = "BOOKING_ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "USER_ID", nullable = false)
     User user;
-    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "ITEM_ID", nullable = false)
     Item item;
-    @NotNull
+    @Column(name = "STATUS", nullable = false)
+    @Enumerated(EnumType.STRING)
     BookingStatusType status;
-    @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "BOOKING_START", nullable = false)
     LocalDateTime bookingStart;
-    @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "BOOKING_END")
     LocalDateTime bookingEnd;
 }

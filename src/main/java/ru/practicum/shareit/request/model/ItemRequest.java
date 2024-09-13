@@ -1,13 +1,8 @@
 package ru.practicum.shareit.request.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -15,15 +10,22 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "ITEM_REQUESTS", schema = "public")
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemRequest {
+    @Id
+    @Column(name = "ITEM_REQ_ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "USER_ID", nullable = false)
     User user;
-    @NotBlank
+    @Column(name = "NAME", nullable = false)
     String name;
+    @Column(name = "DESCRIPTION", nullable = false)
     String description;
-    @NotNull
-    @Past
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "REQUEST_DATE", nullable = false)
     LocalDateTime requestDate;
 }
