@@ -26,7 +26,9 @@ public class ItemResponse {
     @ManyToOne
     @JoinColumn(name = "ITEM_ID", nullable = false)
     Item item;
-    @Column(name = "DESCRIPTION")
+    @Column(name = "NAME", nullable = false)
+    String name;
+    @Column(name = "DESCRIPTION", nullable = false)
     String description;
     @Column(name = "RESPONSE_DATE", nullable = false)
     LocalDateTime responseDate;

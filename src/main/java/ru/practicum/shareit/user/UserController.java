@@ -33,7 +33,8 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto createUser(@Valid @RequestBody UserDto userDto) {
-        return userService.createUser(userDto);
+        UserDto resultUserDto = userService.createUser(userDto);
+        return resultUserDto;
     }
 
     @DeleteMapping("/{userId}")

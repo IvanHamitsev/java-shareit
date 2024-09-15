@@ -25,11 +25,11 @@ public class Item {
     @Column(name = "DESCRIPTION", nullable = false)
     String description;
     @ManyToOne
-    @JoinColumn(name = "USER_ID", nullable = false)
+    @JoinColumn(name = "OWNER_ID")
     User owner;
     // если вещь добавлена по запросу
     @ManyToOne
-    @JoinColumn(name = "ITEM_REQ_ID")
+    @JoinColumn(name = "REQUEST_ID")
     ItemRequest request;
     @Column(name = "IS_AVAILABLE_FOR_RENT", nullable = false)
     Boolean isAvailableForRent;

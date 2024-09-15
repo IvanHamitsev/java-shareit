@@ -2,12 +2,19 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.BookingStatusType;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.response.ResponseRepository;
+import ru.practicum.shareit.response.dto.ItemResponseDto;
+import ru.practicum.shareit.response.dto.ItemResponseMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -21,6 +28,8 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final ResponseRepository responseRepository;
 
     public List<ItemDto> getAllItems(Long userId) {
         List<Item> itemList = itemRepository.findByOwnerId(userId);
@@ -30,8 +39,24 @@ public class ItemService {
     }
 
     public ItemDto getById(long itemId) {
+        List<BookingDto> lastBooking = bookingRepository.findByItemIdAndStatus(itemId, BookingStatusType.APPROVED)
+                .parallelStream()
+                .map(BookingMapper::mapBooking)
+                .toList();
+        List<BookingDto> nextBooking = bookingRepository.findByItemIdAndStatus(itemId, BookingStatusType.WAITING)
+                .parallelStream()
+                .map(BookingMapper::mapBooking)
+                .toList();
+        List<ItemResponseDto> comments = responseRepository.findByItemId(itemId)
+                .parallelStream()
+                .map(ItemResponseMapper::mapItemResponse)
+                .toList();
         return ItemMapper.mapItem(itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Лот не найден itemId = " + itemId)));
+                        .orElseThrow(() -> new NotFoundException("Лот не найден itemId = " + itemId)),
+                lastBooking.stream().findFirst().orElse(null),
+                nextBooking.stream().findFirst().orElse(null),
+                comments
+        );
     }
 
     public ItemDto createItem(ItemDto itemDto, long userId) {

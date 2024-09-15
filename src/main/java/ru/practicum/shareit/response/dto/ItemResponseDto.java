@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
@@ -16,11 +17,13 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemResponseDto {
     long id;
-    @NotNull
+    ItemDto item;
     UserDto responseUser;
-    String description;
+    String authorName;
+    String name;
     @NotNull
+    String text;
     @Past
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    LocalDateTime responseDate;
+    LocalDateTime created;
 }

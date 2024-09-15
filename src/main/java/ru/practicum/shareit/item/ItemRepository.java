@@ -11,10 +11,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByOwnerId(long ownerId);
 
     @Query("""
-            select Item from Item where
-                        (name like concat('%', ?1, '%') or
-            			description like concat('%', ?1, '%')) and
-                        isAvailableForRent = true
+            select it from Item it where
+                        (UPPER(it.name) like concat('%', UPPER(?1), '%') or
+            			 UPPER(it.description) like concat('%', UPPER(?1), '%')) and
+                        it.isAvailableForRent = true
             """)
     List<Item> searchItems(String text);
 }
