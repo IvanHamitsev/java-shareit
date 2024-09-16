@@ -23,7 +23,6 @@ public class BookingDto {
     ItemDto item; // при этом тест postman ожидает получения объекта DTO с полем item.id, item.name
     String status;
     @NotNull
-    @FutureOrPresent
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime start;
     @NotNull

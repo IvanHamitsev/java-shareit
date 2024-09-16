@@ -33,19 +33,14 @@ public class ResponseService {
                 .orElseThrow(() -> new NotFoundException("Не найден пользователь для отзыва userId = " + userId));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Не найден лот для отзыва itemId = " + userId));
-
         LocalDateTime actualTime = LocalDateTime.now();
-        List<Booking> bookingA = bookingRepository.findByUserId(userId);
-        List<Booking> bookingT = bookingRepository.findByUserIdAndStatus(userId, BookingStatusType.APPROVED);
-        List<Booking> booking = bookingRepository.findByItemIdAndStatusAndBookingEndBefore(userId, BookingStatusType.APPROVED, actualTime);
-
-        //if (booking.isEmpty() || booking.getFirst().getBookingEnd().isAfter(actualTime)) {
-        if (booking.isEmpty()) {
+        List<Booking> booking = bookingRepository.findByUserIdAndStatus(userId, BookingStatusType.APPROVED);
+        if (booking.isEmpty() || booking.getFirst().getBookingEnd().isAfter(actualTime)) {
             throw new DataOperationException(String.format("Пользователь %d не завершил аренду лота %d и не может оставить отзыв", userId, itemId));
         }
         itemResponseDto.setResponseUser(UserMapper.mapUser(user));
         itemResponseDto.setItem(ItemMapper.mapItem(item));
-        itemResponseDto.setCreated(LocalDateTime.now());
+        itemResponseDto.setCreated(actualTime);
         ItemResponse itemResponse = ItemResponseMapper.mapItemResponseDto(itemResponseDto, item);
         return ItemResponseMapper.mapItemResponse(responseRepository.save(itemResponse));
     }

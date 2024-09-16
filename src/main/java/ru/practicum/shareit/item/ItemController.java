@@ -20,7 +20,7 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllItemsOfUsers(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return itemService.getAllItems(userId);
+        return itemService.getAllUserItems(userId);
     }
 
     @GetMapping("/{itemId}")

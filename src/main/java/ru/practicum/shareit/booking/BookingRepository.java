@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatusType;
 
@@ -15,6 +16,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByUserIdAndStatus(long userId, BookingStatusType status);
 
-    List<Booking> findByItemIdAndStatus(long userId, BookingStatusType status);
-    List<Booking> findByItemIdAndStatusAndBookingEndBefore(long userId, BookingStatusType status, LocalDateTime time);
+    List<Booking> findByItemIdAndStatus(long itemId, BookingStatusType status);
+
+    List<Booking> findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(long itemId, BookingStatusType status, LocalDateTime time);
+
+    @Query("""
+            SELECT DISTINCT b FROM Booking b 
+            JOIN b.item i 
+            JOIN i.owner u
+            WHERE u.id = ?1
+            """)
+    List<Booking> findByOwnerId(long userId);
 }

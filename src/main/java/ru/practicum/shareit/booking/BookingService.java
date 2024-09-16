@@ -25,7 +25,7 @@ public class BookingService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-    public List<BookingDto> getAllBookings(Long userId) {
+    public List<BookingDto> getAllUserBookings(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с Id %d не найден", userId)));
         List<Booking> bookingList = bookingRepository.findByUserId(userId);
@@ -37,27 +37,26 @@ public class BookingService {
     public List<BookingDto> getAllOwnerBookings(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с Id %d не найден", userId)));
-        //List<Booking> bookingList = bookingRepository.findByOwnerId(userId);
-        List<Booking> bookingList = bookingRepository.findByUserId(userId);
+        List<Booking> bookingList = bookingRepository.findByOwnerId(userId);
         return bookingList.parallelStream()
                 .map(BookingMapper::mapBooking)
                 .toList();
     }
 
     public BookingDto createBooking(BookingDto bookingDto, long userId) {
+        deepValidate(bookingDto);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Не найден пользователь c userId = " + userId));
         Item item = itemRepository.findById(bookingDto.getItemId())
                 .orElseThrow(() -> new NotFoundException("Не найдена вещь Id = " + bookingDto.getItemId()));
-        deepValidate(bookingDto);
         // проверить, что вещь доступна для бронирования
         if (item.getIsAvailableForRent() && !item.getIsRented()) {
             bookingDto.setBooker(UserMapper.mapUser(user));
             Booking booking = BookingMapper.mapBookingDto(bookingDto, item);
             booking.setStatus(BookingStatusType.WAITING);
             BookingDto resultBookingDto = BookingMapper.mapBooking(bookingRepository.save(booking));
-            item.setIsRented(true);
-            itemRepository.save(item);
+            //item.setIsRented(true);
+            //itemRepository.save(item);
             return resultBookingDto;
         } else {
             throw new DataOperationException("Лот не может быть забранирован Id = " + item.getId());

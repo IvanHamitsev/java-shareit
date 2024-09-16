@@ -18,6 +18,7 @@ import ru.practicum.shareit.response.dto.ItemResponseMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public class ItemService {
     private final BookingRepository bookingRepository;
     private final ResponseRepository responseRepository;
 
-    public List<ItemDto> getAllItems(Long userId) {
+    public List<ItemDto> getAllUserItems(Long userId) {
         List<Item> itemList = itemRepository.findByOwnerId(userId);
         return itemList.parallelStream()
                 .map(ItemMapper::mapItem)
@@ -39,7 +40,15 @@ public class ItemService {
     }
 
     public ItemDto getById(long itemId) {
-        List<BookingDto> lastBooking = bookingRepository.findByItemIdAndStatus(itemId, BookingStatusType.APPROVED)
+        LocalDateTime actualTime = LocalDateTime.now();
+
+        List<BookingDto> lastBooking = bookingRepository
+                .findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(itemId, BookingStatusType.APPROVED, actualTime)
+                .parallelStream()
+                .map(BookingMapper::mapBooking)
+                .toList();
+
+        List<BookingDto> lastBookingOld = bookingRepository.findByItemIdAndStatus(itemId, BookingStatusType.APPROVED)
                 .parallelStream()
                 .map(BookingMapper::mapBooking)
                 .toList();
