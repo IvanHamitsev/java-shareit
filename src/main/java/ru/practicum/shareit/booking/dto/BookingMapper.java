@@ -6,8 +6,6 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserMapper;
 
-import java.util.Objects;
-
 public class BookingMapper {
     public static Booking mapBookingDto(BookingDto bookingDto, Item item) {
         Booking booking = Booking.builder()

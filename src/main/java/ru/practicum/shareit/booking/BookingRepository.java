@@ -7,24 +7,55 @@ import ru.practicum.shareit.booking.model.BookingStatusType;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByUserId(long userId);
+    List<Booking> findByUserIdOrderByBookingStart(long userId);
 
-    List<Booking> findByItemId(long itemId);
+    List<Booking> findByUserIdAndBookingStartBeforeAndBookingEndAfterOrderByBookingStart(long userId,
+                                                                                         LocalDateTime time1,
+                                                                                         LocalDateTime time2);
 
-    List<Booking> findByUserIdAndStatus(long userId, BookingStatusType status);
+    List<Booking> findByUserIdAndBookingEndBeforeOrderByBookingStart(long userId, LocalDateTime time);
 
-    List<Booking> findByItemIdAndStatus(long itemId, BookingStatusType status);
+    List<Booking> findByUserIdAndBookingStartAfterOrderByBookingStart(long userId, LocalDateTime time);
 
-    List<Booking> findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(long itemId, BookingStatusType status, LocalDateTime time);
+    List<Booking> findByUserIdAndStatusOrderByBookingStart(long userId, BookingStatusType status);
 
-    @Query("""
-            SELECT DISTINCT b FROM Booking b 
-            JOIN b.item i 
-            JOIN i.owner u
-            WHERE u.id = ?1
-            """)
+    List<Booking> findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(long itemId,
+                                                                            BookingStatusType status,
+                                                                            LocalDateTime time);
+
+    List<Booking> findByItemIdAndBookingStartAfterOrderByBookingStart(long itemId, LocalDateTime time);
+
+    @Query("SELECT DISTINCT b FROM Booking b " +
+            "JOIN b.item i " +
+            "JOIN i.owner u " +
+            "WHERE u.id = ?1 " +
+            "ORDER BY b.bookingStart")
     List<Booking> findByOwnerId(long userId);
+
+    @Query("SELECT DISTINCT b FROM Booking b " +
+            "JOIN b.item i " +
+            "JOIN i.owner u " +
+            "WHERE u.id = ?1 AND " +
+            "b.bookingStart < ?2 AND " +
+            "b.bookingEnd > ?2 " +
+            "ORDER BY b.bookingStart")
+    List<Booking> findByOwnerIdCurrent(long userId, LocalDateTime time);
+
+    @Query("SELECT DISTINCT b FROM Booking b " +
+            "JOIN b.item i " +
+            "JOIN i.owner u " +
+            "WHERE u.id = ?1 AND " +
+            "b.bookingEnd < ?2 " +
+            "ORDER BY b.bookingStart")
+    List<Booking> findByOwnerIdPast(long userId, LocalDateTime time);
+
+    @Query("SELECT DISTINCT b FROM Booking b " +
+            "JOIN b.item i " +
+            "JOIN i.owner u " +
+            "WHERE u.id = ?1 AND " +
+            "b.bookingStart > ?2 " +
+            "ORDER BY b.bookingStart")
+    List<Booking> findByOwnerIdFuture(long userId, LocalDateTime time);
 }

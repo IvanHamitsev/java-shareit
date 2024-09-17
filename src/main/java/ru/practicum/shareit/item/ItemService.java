@@ -39,23 +39,29 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    public ItemDto getById(long itemId) {
+    public ItemDto getById(long ownerId, long itemId) {
         LocalDateTime actualTime = LocalDateTime.now();
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Лот не найден itemId = " + itemId));
 
-        List<BookingDto> lastBooking = bookingRepository
-                .findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(itemId, BookingStatusType.APPROVED, actualTime)
-                .parallelStream()
-                .map(BookingMapper::mapBooking)
-                .toList();
+        List<BookingDto> lastBooking = new ArrayList<>();
+        List<BookingDto> nextBooking = new ArrayList<>();
 
-        List<BookingDto> lastBookingOld = bookingRepository.findByItemIdAndStatus(itemId, BookingStatusType.APPROVED)
-                .parallelStream()
-                .map(BookingMapper::mapBooking)
-                .toList();
-        List<BookingDto> nextBooking = bookingRepository.findByItemIdAndStatus(itemId, BookingStatusType.WAITING)
-                .parallelStream()
-                .map(BookingMapper::mapBooking)
-                .toList();
+        // Нет смысла даже обращаться к базе, если запрашивающий пользователь не владелец лота
+        if (item.getOwner().getId() == ownerId) {
+            lastBooking = bookingRepository
+                    .findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(itemId, BookingStatusType.APPROVED, actualTime)
+                    .parallelStream()
+                    .map(BookingMapper::mapBooking)
+                    .toList();
+
+            // для будущих бронирований статус не важен
+            nextBooking = bookingRepository
+                    .findByItemIdAndBookingStartAfterOrderByBookingStart(itemId, actualTime)
+                    .parallelStream()
+                    .map(BookingMapper::mapBooking)
+                    .toList();
+        }
         List<ItemResponseDto> comments = responseRepository.findByItemId(itemId)
                 .parallelStream()
                 .map(ItemResponseMapper::mapItemResponse)

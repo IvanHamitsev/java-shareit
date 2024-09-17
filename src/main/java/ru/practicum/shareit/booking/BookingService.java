@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.dto.RequestType;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatusType;
 import ru.practicum.shareit.exception.DataOperationException;
@@ -15,6 +16,8 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,19 +28,41 @@ public class BookingService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-    public List<BookingDto> getAllUserBookings(Long userId) {
+    public List<BookingDto> getAllUserBookings(Long userId, RequestType state) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с Id %d не найден", userId)));
-        List<Booking> bookingList = bookingRepository.findByUserId(userId);
+        List<Booking> bookingList = new ArrayList<>();
+        LocalDateTime time = LocalDateTime.now();
+        switch (state) {
+            case ALL -> bookingList = bookingRepository.findByUserIdOrderByBookingStart(userId);
+            case CURRENT -> bookingList = bookingRepository
+                    .findByUserIdAndBookingStartBeforeAndBookingEndAfterOrderByBookingStart(userId, time, time);
+            case PAST -> bookingList = bookingRepository
+                    .findByUserIdAndBookingEndBeforeOrderByBookingStart(userId, time);
+            case FUTURE -> bookingList = bookingRepository
+                    .findByUserIdAndBookingStartAfterOrderByBookingStart(userId, time);
+            case WAITING -> bookingList = bookingRepository
+                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.WAITING);
+            case REJECTED -> bookingList = bookingRepository
+                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.REJECTED);
+        }
         return bookingList.parallelStream()
                 .map(BookingMapper::mapBooking)
                 .toList();
     }
 
-    public List<BookingDto> getAllOwnerBookings(Long userId) {
+    public List<BookingDto> getAllOwnerBookings(Long userId, RequestType state) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с Id %d не найден", userId)));
-        List<Booking> bookingList = bookingRepository.findByOwnerId(userId);
+        List<Booking> bookingList = new ArrayList<>();
+        LocalDateTime time = LocalDateTime.now();
+        switch (state) {
+            case ALL -> bookingList = bookingRepository.findByOwnerId(userId);
+            case CURRENT -> bookingList = bookingRepository.findByOwnerIdCurrent(userId, time);
+            case PAST -> bookingList = bookingRepository.findByOwnerIdPast(userId, time);
+            case FUTURE -> bookingList = bookingRepository.findByOwnerIdFuture(userId, time);
+        }
+
         return bookingList.parallelStream()
                 .map(BookingMapper::mapBooking)
                 .toList();
@@ -54,14 +79,10 @@ public class BookingService {
             bookingDto.setBooker(UserMapper.mapUser(user));
             Booking booking = BookingMapper.mapBookingDto(bookingDto, item);
             booking.setStatus(BookingStatusType.WAITING);
-            BookingDto resultBookingDto = BookingMapper.mapBooking(bookingRepository.save(booking));
-            //item.setIsRented(true);
-            //itemRepository.save(item);
-            return resultBookingDto;
+            return BookingMapper.mapBooking(bookingRepository.save(booking));
         } else {
             throw new DataOperationException("Лот не может быть забранирован Id = " + item.getId());
         }
-
     }
 
     public BookingDto changeBookingStatus(long userId, long bookingId, boolean newStatus) {
@@ -79,10 +100,13 @@ public class BookingService {
     }
 
     public BookingDto getBookingInfo(long userId, long bookingId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new DataOperationException("Не найден пользователь, запросивший информацию id = " + userId));
-        return BookingMapper.mapBooking(bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NotFoundException(String.format("Бронирования с указанным Id %d не найдено", bookingId))));
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException(String
+                        .format("Бронирования с указанным Id %d не найдено", bookingId)));
+        if (booking.getItem().getOwner().getId() != userId && booking.getUser().getId() != userId) {
+            throw new DataOperationException("Информация о бронировании предоставляется только владельцу лота и бронирующему");
+        }
+        return BookingMapper.mapBooking(booking);
     }
 
     protected void deepValidate(BookingDto bookingDto) {
@@ -90,6 +114,5 @@ public class BookingService {
         if (bookingDto.getStart().equals(bookingDto.getEnd())) {
             throw new DataOperationException("Время начала и окончания бронирования совпадают " + bookingDto.getStart());
         }
-
     }
 }

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.response;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.practicum.shareit.response.dto.ItemResponseDto;
 import ru.practicum.shareit.response.model.ItemResponse;
 
 import java.util.List;

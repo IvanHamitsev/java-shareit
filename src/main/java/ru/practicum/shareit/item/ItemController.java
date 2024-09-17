@@ -29,7 +29,7 @@ public class ItemController {
         if (null == userId) {
             throw new ValidationException("Запрос не содержит данных о авторизации пользователя");
         }
-        return itemService.getById(itemId);
+        return itemService.getById(userId, itemId);
     }
 
     @GetMapping("/search")
