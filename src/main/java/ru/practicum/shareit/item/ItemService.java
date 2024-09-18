@@ -66,8 +66,7 @@ public class ItemService {
                 .parallelStream()
                 .map(ItemResponseMapper::mapItemResponse)
                 .toList();
-        return ItemMapper.mapItem(itemRepository.findById(itemId)
-                        .orElseThrow(() -> new NotFoundException("Лот не найден itemId = " + itemId)),
+        return ItemMapper.mapItem(item,
                 lastBooking.stream().findFirst().orElse(null),
                 nextBooking.stream().findFirst().orElse(null),
                 comments
@@ -131,9 +130,6 @@ public class ItemService {
         }
         if (newItem.getIsAvailableForRent() == null) {
             newItem.setIsAvailableForRent(oldItem.getIsAvailableForRent());
-        }
-        if (newItem.getIsRented() == null) {
-            newItem.setIsRented(oldItem.getIsRented());
         }
         if (newItem.getOwner() == null) {
             newItem.setOwner(oldItem.getOwner());

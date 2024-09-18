@@ -15,7 +15,6 @@ public class ItemMapper {
                 .description(itemDto.getDescription())
                 .owner(owner) // объект ItemDto не знает хозяина
                 .isAvailableForRent(itemDto.getAvailable())
-                .isRented(false) // вновь созданная вещь не занята
                 .request(itemDto.getRequest())
                 .build();
     }
@@ -25,7 +24,7 @@ public class ItemMapper {
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .available(item.getIsAvailableForRent()) // пока не учитываем isRented
+                .available(item.getIsAvailableForRent())
                 .request(item.getRequest())
                 .build();
     }
@@ -36,7 +35,7 @@ public class ItemMapper {
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .available(item.getIsAvailableForRent()) // пока не учитываем isRented
+                .available(item.getIsAvailableForRent())
                 .request(item.getRequest())
                 .lastBooking(lastBooking)
                 .nextBooking(nextBooking)

@@ -75,7 +75,8 @@ public class BookingService {
         Item item = itemRepository.findById(bookingDto.getItemId())
                 .orElseThrow(() -> new NotFoundException("Не найдена вещь Id = " + bookingDto.getItemId()));
         // проверить, что вещь доступна для бронирования
-        if (item.getIsAvailableForRent() && !item.getIsRented()) {
+        if (item.getIsAvailableForRent()
+                && bookingRepository.findItemRentsInTime(item.getId(), bookingDto.getStart(), bookingDto.getEnd()).isEmpty()) {
             bookingDto.setBooker(UserMapper.mapUser(user));
             Booking booking = BookingMapper.mapBookingDto(bookingDto, item);
             booking.setStatus(BookingStatusType.WAITING);
@@ -90,6 +91,11 @@ public class BookingService {
                 .orElseThrow(() -> new NotFoundException("Не найдено бранирование с id = " + bookingId));
         if (booking.getItem().getOwner().getId() != userId) {
             throw new ForbiddenException("Изменить статус бронирования может только хозяин лота");
+        }
+        // Повторно изменить статус нельзя, допустимо изменить только статус WAITING
+        if (booking.getStatus() != BookingStatusType.WAITING) {
+            throw new ForbiddenException(String
+                    .format("Изменить статус бронирования %s нельзя, изменение возможно только один раз", booking.getStatus()));
         }
         if (newStatus) {
             booking.setStatus(BookingStatusType.APPROVED);

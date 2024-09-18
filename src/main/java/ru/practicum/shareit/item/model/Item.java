@@ -33,6 +33,4 @@ public class Item {
     ItemRequest request;
     @Column(name = "IS_AVAILABLE_FOR_RENT", nullable = false)
     Boolean isAvailableForRent;
-    @Column(name = "IS_RENTED", nullable = false)
-    Boolean isRented;
 }

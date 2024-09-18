@@ -58,4 +58,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "b.bookingStart > ?2 " +
             "ORDER BY b.bookingStart")
     List<Booking> findByOwnerIdFuture(long userId, LocalDateTime time);
+
+    // Для проверки пересечения двух отрезков используется свойство,
+    // что любые типы пересечения обязательно имеют один из двух признаков:
+    // 1) Начало первого отрезка внутри второго отрезка
+    // 2) Начало второго отрезка внутри первого отрезка
+    @Query("SELECT DISTINCT b FROM Booking b " +
+            "JOIN b.item i " +
+            "WHERE i.id = ?1 AND " +
+            "((b.bookingStart <= ?2 AND b.bookingEnd >= ?2) OR " +
+            "(b.bookingStart >= ?2 AND b.bookingStart <= ?3))")
+    List<Booking> findItemRentsInTime(long itemId, LocalDateTime startTime, LocalDateTime endTime);
 }
