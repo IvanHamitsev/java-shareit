@@ -24,20 +24,21 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
-        return userService.createUser(userDto);
-    }
-
     @PatchMapping("/{id}")
     public UserDto updateUser(@RequestBody UserDto userDto, @PathVariable long id) {
         userDto.setId(id);
         return userService.updateUser(userDto);
     }
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+        UserDto resultUserDto = userService.createUser(userDto);
+        return resultUserDto;
+    }
+
     @DeleteMapping("/{userId}")
-    public UserDto deleteUser(@PathVariable long userId) {
-        return userService.deleteUserById(userId);
+    public void deleteUser(@PathVariable long userId) {
+        userService.deleteUserById(userId);
     }
 }

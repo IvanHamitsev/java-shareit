@@ -2,15 +2,24 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.BookingStatusType;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.response.ResponseRepository;
+import ru.practicum.shareit.response.dto.ItemResponseDto;
+import ru.practicum.shareit.response.dto.ItemResponseMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,36 +29,69 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final ResponseRepository responseRepository;
 
-    public List<ItemDto> getAllItems(Long userId) {
-        List<Item> itemList = itemRepository.getAllByOwnerId(userId);
+    public List<ItemDto> getAllUserItems(Long userId) {
+        List<Item> itemList = itemRepository.findByOwnerId(userId);
         return itemList.parallelStream()
                 .map(ItemMapper::mapItem)
                 .collect(Collectors.toList());
     }
 
-    public ItemDto getById(long itemId) {
-        return ItemMapper.mapItem(itemRepository.getById(itemId)
-                .orElseThrow(() -> new NotFoundException("Лот не найден itemId = " + itemId)));
+    public ItemDto getById(long ownerId, long itemId) {
+        LocalDateTime actualTime = LocalDateTime.now();
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Лот не найден itemId = " + itemId));
+
+        List<BookingDto> lastBooking = new ArrayList<>();
+        List<BookingDto> nextBooking = new ArrayList<>();
+
+        // Нет смысла даже обращаться к базе, если запрашивающий пользователь не владелец лота
+        if (item.getOwner().getId() == ownerId) {
+            lastBooking = bookingRepository
+                    .findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(itemId, BookingStatusType.APPROVED, actualTime)
+                    .parallelStream()
+                    .map(BookingMapper::mapBooking)
+                    .toList();
+
+            // для будущих бронирований статус не важен
+            nextBooking = bookingRepository
+                    .findByItemIdAndBookingStartAfterOrderByBookingStart(itemId, actualTime)
+                    .parallelStream()
+                    .map(BookingMapper::mapBooking)
+                    .toList();
+        }
+        List<ItemResponseDto> comments = responseRepository.findByItemId(itemId)
+                .parallelStream()
+                .map(ItemResponseMapper::mapItemResponse)
+                .toList();
+        return ItemMapper.mapItem(item,
+                lastBooking.stream().findFirst().orElse(null),
+                nextBooking.stream().findFirst().orElse(null),
+                comments
+        );
     }
 
     public ItemDto createItem(ItemDto itemDto, long userId) {
-        User user = userRepository.getById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Не найден хозяин вещи c userId = " + userId));
         Item item = ItemMapper.mapItemDto(itemDto, user);
-        return ItemMapper.mapItem(itemRepository.create(item));
+        return ItemMapper.mapItem(itemRepository.save(item));
     }
 
     public ItemDto updateItem(ItemDto itemDto, long userId) {
-        Item oldItem = itemRepository.getById(itemDto.getId())
+        Item oldItem = itemRepository.findById(itemDto.getId())
                 .orElseThrow(() -> new NotFoundException("Обновляемый лот не найден itemId = " + itemDto.getId()));
         // изменения может вносить только хозяин
         testOwner(oldItem, userId);
-        return ItemMapper.mapItem(itemRepository.update(oldItem, ItemMapper.mapItemDto(itemDto, oldItem.getOwner())));
+        Item newItem = ItemMapper.mapItemDto(itemDto, oldItem.getOwner());
+        patchItem(newItem, oldItem);
+        return ItemMapper.mapItem(itemRepository.save(newItem));
     }
 
     public ItemDto deleteItemById(long userId, long itemId) {
-        Item item = itemRepository.getById(itemId)
+        Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Удаляемый элемент не найден itemId = " + itemId));
         // удаление разрешено только хозяину
         testOwner(item, userId);
@@ -58,9 +100,12 @@ public class ItemService {
     }
 
     public List<ItemDto> searchItems(long userId, String text) {
-        User user = userRepository.getById(userId)
+        if ((text == null) || (text.isEmpty())) {
+            return new ArrayList<>();
+        }
+        userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException("Неизвестный пользователь c userId = " + userId));
-        List<Item> itemList = itemRepository.serchItems(text);
+        List<Item> itemList = itemRepository.searchItems(text);
         return itemList.parallelStream()
                 .map(ItemMapper::mapItem)
                 .toList();
@@ -70,6 +115,24 @@ public class ItemService {
         if (item.getOwner().getId() != ownerId) {
             throw new ForbiddenException("Изменения лота возможны только хозяином, " +
                     "пользователь не хозяин userId = " + item.getOwner().getId());
+        }
+    }
+
+    public void patchItem(Item newItem, Item oldItem) {
+        if (newItem.getName() == null) {
+            newItem.setName(oldItem.getName());
+        }
+        if (newItem.getDescription() == null) {
+            newItem.setDescription(oldItem.getDescription());
+        }
+        if (newItem.getRequest() == null) {
+            newItem.setRequest(oldItem.getRequest());
+        }
+        if (newItem.getIsAvailableForRent() == null) {
+            newItem.setIsAvailableForRent(oldItem.getIsAvailableForRent());
+        }
+        if (newItem.getOwner() == null) {
+            newItem.setOwner(oldItem.getOwner());
         }
     }
 }

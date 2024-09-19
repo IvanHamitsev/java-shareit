@@ -1,7 +1,9 @@
 package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,10 +41,24 @@ public class ErrorHandler {
         return new ErrorResponse("action is prohibited", exception.getMessage());
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler
+    public ErrorResponse validationFail(final MethodArgumentNotValidException exception) {
+        log.info(exception.getMessage(), exception);
+        return new ErrorResponse("invalid object properties in request", exception.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler
+    public ErrorResponse validationFail(final DataIntegrityViolationException exception) {
+        log.info(exception.getMessage(), exception);
+        return new ErrorResponse("conflict object properties in request", exception.getMessage());
+    }
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
     public ErrorResponse internalServerExceptionHandler(final Exception exception) {
         log.warn(Arrays.toString(exception.getStackTrace()));
-        return new ErrorResponse("unexpected server error", exception.getMessage());
+        return new ErrorResponse("unexpected server error " + exception.getClass().getName(), exception.getMessage());
     }
 }

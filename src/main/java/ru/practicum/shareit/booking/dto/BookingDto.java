@@ -1,12 +1,12 @@
 package ru.practicum.shareit.booking.dto;
 
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.shareit.booking.model.BookingStatusType;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -17,16 +17,15 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingDto {
     long id;
-    @NotNull
-    UserDto user;
-    @NotNull
-    ItemDto item;
-    @NotNull
-    BookingStatusType status;
+    UserDto booker; // на входе пользователь не заполнен, а передан в виде id в заголовке X-Sharer-User-Id
+    long itemId; // тест postman передаёт объект DTO с полем itemId
+    ItemDto item; // при этом тест postman ожидает получения объекта DTO с полем item.id, item.name
+    String status;
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    LocalDateTime bookingStart;
+    LocalDateTime start;
     @NotNull
+    @Future
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    LocalDateTime bookingEnd;
+    LocalDateTime end;
 }

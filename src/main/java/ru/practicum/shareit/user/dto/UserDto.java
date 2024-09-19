@@ -18,6 +18,7 @@ public class UserDto {
     long id = 0; // акцентирую внимание, что id не заполнен
     @NotBlank
     String name;
+    String login;
     @NotBlank
     @Email
     String email;

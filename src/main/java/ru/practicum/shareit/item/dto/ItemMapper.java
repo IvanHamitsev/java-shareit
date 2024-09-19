@@ -1,7 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.response.dto.ItemResponseDto;
 import ru.practicum.shareit.user.model.User;
+
+import java.util.List;
 
 public class ItemMapper {
     public static Item mapItemDto(ItemDto itemDto, User owner) {
@@ -11,7 +15,6 @@ public class ItemMapper {
                 .description(itemDto.getDescription())
                 .owner(owner) // объект ItemDto не знает хозяина
                 .isAvailableForRent(itemDto.getAvailable())
-                .isRented(false) // вновь созданная вещь не занята
                 .request(itemDto.getRequest())
                 .build();
     }
@@ -21,8 +24,22 @@ public class ItemMapper {
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .available(item.getIsAvailableForRent()) // пока не учитываем isRented
+                .available(item.getIsAvailableForRent())
                 .request(item.getRequest())
+                .build();
+    }
+
+    public static ItemDto mapItem(Item item, BookingDto lastBooking, BookingDto nextBooking,
+                                  List<ItemResponseDto> comments) {
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getIsAvailableForRent())
+                .request(item.getRequest())
+                .lastBooking(lastBooking)
+                .nextBooking(nextBooking)
+                .comments(comments)
                 .build();
     }
 }
