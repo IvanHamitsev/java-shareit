@@ -1,7 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -21,11 +19,8 @@ public class BookingDto {
     long itemId; // тест postman передаёт объект DTO с полем itemId
     ItemDto item; // при этом тест postman ожидает получения объекта DTO с полем item.id, item.name
     String status;
-    @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime start;
-    @NotNull
-    @Future
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime end;
 }

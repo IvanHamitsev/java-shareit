@@ -1,7 +1,5 @@
 package ru.practicum.shareit.response.dto;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -21,9 +19,7 @@ public class ItemResponseDto {
     UserDto responseUser;
     String authorName;
     String name;
-    @NotNull
     String text;
-    @Past
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime created;
 }
