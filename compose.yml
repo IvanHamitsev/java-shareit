@@ -23,7 +23,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=vxpasswd
   db:
     image: postgres:16.1
-    container_name: postgres
+    container_name: postgres_shareit
     ports:
       - "5432:5432"
     environment:

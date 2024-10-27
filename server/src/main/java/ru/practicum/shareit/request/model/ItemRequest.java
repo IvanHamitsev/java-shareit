@@ -22,10 +22,10 @@ public class ItemRequest {
     @ManyToOne
     @JoinColumn(name = "USER_ID", nullable = false)
     User user;
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "NAME")
     String name;
     @Column(name = "DESCRIPTION", nullable = false)
     String description;
     @Column(name = "REQUEST_DATE", nullable = false)
-    LocalDateTime requestDate;
+    LocalDateTime created;
 }

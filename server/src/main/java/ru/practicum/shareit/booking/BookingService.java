@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -28,23 +31,24 @@ public class BookingService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-    public List<BookingDto> getAllUserBookings(Long userId, RequestType state) {
+    public List<BookingDto> getAllUserBookings(Long userId, RequestType state, Integer from, Integer size) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с Id %d не найден", userId)));
         List<Booking> bookingList = new ArrayList<>();
+        Pageable page = PageRequest.of(from, size);
         LocalDateTime time = LocalDateTime.now();
         switch (state) {
-            case ALL -> bookingList = bookingRepository.findByUserIdOrderByBookingStart(userId);
+            case ALL -> bookingList = bookingRepository.findByUserIdOrderByBookingStart(userId, page);
             case CURRENT -> bookingList = bookingRepository
-                    .findByUserIdAndBookingStartBeforeAndBookingEndAfterOrderByBookingStart(userId, time, time);
+                    .findByUserIdAndBookingStartBeforeAndBookingEndAfterOrderByBookingStart(userId, time, time, page);
             case PAST -> bookingList = bookingRepository
-                    .findByUserIdAndBookingEndBeforeOrderByBookingStart(userId, time);
+                    .findByUserIdAndBookingEndBeforeOrderByBookingStart(userId, time, page);
             case FUTURE -> bookingList = bookingRepository
-                    .findByUserIdAndBookingStartAfterOrderByBookingStart(userId, time);
+                    .findByUserIdAndBookingStartAfterOrderByBookingStart(userId, time, page);
             case WAITING -> bookingList = bookingRepository
-                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.WAITING);
+                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.WAITING, page);
             case REJECTED -> bookingList = bookingRepository
-                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.REJECTED);
+                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.REJECTED, page);
         }
         return bookingList.parallelStream()
                 .map(BookingMapper::mapBooking)
@@ -82,7 +86,7 @@ public class BookingService {
             booking.setStatus(BookingStatusType.WAITING);
             return BookingMapper.mapBooking(bookingRepository.save(booking));
         } else {
-            throw new DataOperationException("Лот не может быть забранирован Id = " + item.getId());
+            throw new DataOperationException("Не может быть забронирован лот с Id = " + item.getId());
         }
     }
 

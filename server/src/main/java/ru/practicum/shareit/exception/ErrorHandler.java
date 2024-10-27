@@ -29,7 +29,7 @@ public class ErrorHandler {
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler
-    public ErrorResponse badRequest(final ValidationException exception) {
+    public ErrorResponse conflictRequest(final ValidationException exception) {
         log.info(exception.getMessage(), exception);
         return new ErrorResponse("conflict properties", exception.getMessage());
     }
@@ -48,9 +48,10 @@ public class ErrorHandler {
         return new ErrorResponse("invalid object properties in request", exception.getMessage());
     }
 
-    @ResponseStatus(HttpStatus.CONFLICT)
+    //@ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
-    public ErrorResponse validationFail(final DataIntegrityViolationException exception) {
+    public ErrorResponse conflictDataIntegrityViolation(final DataIntegrityViolationException exception) {
         log.info(exception.getMessage(), exception);
         return new ErrorResponse("conflict object properties in request", exception.getMessage());
     }

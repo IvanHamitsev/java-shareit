@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.dto;
 
+import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +13,10 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
-    long id; // акцентирую внимание, что id в Dto не заполнен
+    long id;
     String name;
     String login;
+    @Email
     String email;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     LocalDate birthday;

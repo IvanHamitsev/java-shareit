@@ -20,12 +20,12 @@ public enum RequestType {
     }
 
     public static RequestType fromString(String value) {
-        if (value.equals("ALL")) return ALL;
-        if (value.equals("CURRENT")) return CURRENT;
-        if (value.equals("PAST")) return PAST;
-        if (value.equals("FUTURE")) return FUTURE;
-        if (value.equals("WAITING")) return WAITING;
-        if (value.equals("REJECTED")) return REJECTED;
-        throw new IllegalArgumentException("Некорректный тип запроса " + value);
+        if (value.equalsIgnoreCase("ALL")) return ALL;
+        if (value.equalsIgnoreCase("CURRENT")) return CURRENT;
+        if (value.equalsIgnoreCase("PAST")) return PAST;
+        if (value.equalsIgnoreCase("FUTURE")) return FUTURE;
+        if (value.equalsIgnoreCase("WAITING")) return WAITING;
+        if (value.equalsIgnoreCase("REJECTED")) return REJECTED;
+        throw new IllegalArgumentException("Incorrect state name " + value);
     }
     }

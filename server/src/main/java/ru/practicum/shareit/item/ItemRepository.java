@@ -17,4 +17,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                         it.isAvailableForRent = true
             """)
     List<Item> searchItems(String text);
+
+    List<Item> findByRequestId(long requestId);
 }

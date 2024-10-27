@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.model.Booking;
@@ -9,23 +10,33 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByUserIdOrderByBookingStart(long userId);
+    List<Booking> findByUserIdOrderByBookingStart(long userId, Pageable page);
 
     List<Booking> findByUserIdAndBookingStartBeforeAndBookingEndAfterOrderByBookingStart(long userId,
                                                                                          LocalDateTime time1,
-                                                                                         LocalDateTime time2);
+                                                                                         LocalDateTime time2,
+                                                                                         Pageable page);
 
-    List<Booking> findByUserIdAndBookingEndBeforeOrderByBookingStart(long userId, LocalDateTime time);
+    List<Booking> findByUserIdAndBookingEndBeforeOrderByBookingStart(long userId, LocalDateTime time, Pageable page);
 
-    List<Booking> findByUserIdAndBookingStartAfterOrderByBookingStart(long userId, LocalDateTime time);
+    List<Booking> findByUserIdAndBookingStartAfterOrderByBookingStart(long userId, LocalDateTime time, Pageable page);
 
     List<Booking> findByUserIdAndStatusOrderByBookingStart(long userId, BookingStatusType status);
+
+    List<Booking> findByUserIdAndStatusOrderByBookingStart(long userId, BookingStatusType status, Pageable page);
 
     List<Booking> findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(long itemId,
                                                                             BookingStatusType status,
                                                                             LocalDateTime time);
 
+    List<Booking> findByItemIdAndStatusAndBookingEndBeforeOrderByBookingEnd(long itemId,
+                                                                            BookingStatusType status,
+                                                                            LocalDateTime time,
+                                                                            Pageable page);
+
     List<Booking> findByItemIdAndBookingStartAfterOrderByBookingStart(long itemId, LocalDateTime time);
+
+    List<Booking> findByItemIdAndBookingStartAfterOrderByBookingStart(long itemId, LocalDateTime time, Pageable page);
 
     @Query("SELECT DISTINCT b FROM Booking b " +
             "JOIN b.item i " +

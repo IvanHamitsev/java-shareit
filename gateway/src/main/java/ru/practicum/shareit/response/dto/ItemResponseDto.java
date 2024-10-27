@@ -1,22 +1,25 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.response.dto;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemRequestDto {
+public class ItemResponseDto {
     long id;
+    ItemDto item;
+    UserDto responseUser;
+    String authorName;
     String name;
-    String description;
+    String text;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime created;
-    List<MiniItemDto> items; // Has name responseList earlier
 }

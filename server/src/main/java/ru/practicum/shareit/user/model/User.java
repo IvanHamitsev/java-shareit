@@ -28,6 +28,6 @@ public class User {
     @Column(name = "LOGIN", nullable = false, unique = true)
     String login;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @Column(name = "BIRTHDAY", nullable = false)
+    @Column(name = "BIRTHDAY")
     LocalDate birthday;
 }

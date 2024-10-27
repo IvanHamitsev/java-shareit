@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +16,9 @@ import java.util.List;
 public class ItemRequestDto {
     long id;
     String name;
+    @NotNull
     String description;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime created;
-    List<MiniItemDto> items; // Has name responseList earlier
+    List<MiniItemDto> items; // Has name responseList in server
 }

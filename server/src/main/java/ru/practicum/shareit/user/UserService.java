@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
@@ -34,7 +36,8 @@ public class UserService {
     public UserDto createUser(UserDto userDto) {
         deepValidate(userDto);
         fixUser(userDto);
-        return UserMapper.mapUser(userRepository.save(UserMapper.mapUserDto(userDto)));
+        var user = UserMapper.mapUserDto(userDto);
+        return UserMapper.mapUser(userRepository.save(user));
     }
 
     public UserDto updateUser(UserDto newUserDto) {

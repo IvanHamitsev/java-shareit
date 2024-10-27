@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -12,6 +13,8 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.response.ResponseRepository;
 import ru.practicum.shareit.response.dto.ItemResponseDto;
 import ru.practicum.shareit.response.dto.ItemResponseMapper;
@@ -24,12 +27,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final RequestRepository requestRepository;
     private final ResponseRepository responseRepository;
 
     public List<ItemDto> getAllUserItems(Long userId) {
@@ -74,10 +79,20 @@ public class ItemService {
     }
 
     public ItemDto createItem(ItemDto itemDto, long userId) {
+        log.info("Start createItem for userId " + userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Не найден хозяин вещи c userId = " + userId));
-        Item item = ItemMapper.mapItemDto(itemDto, user);
-        return ItemMapper.mapItem(itemRepository.save(item));
+        log.info("User found");
+        ItemRequest request = null;
+        if (null != itemDto.getRequestId()) {
+             request = requestRepository.findById(itemDto.getRequestId()).orElse(null);
+        }
+        log.info("Ready to map itemDto for user " + user.getId());
+        Item item = ItemMapper.mapItemDto(itemDto, user, request);
+        log.info("Successfully map itemDto for user " + user.getId());
+        var result = itemRepository.save(item);
+        log.info("Successfully create Item, get Id " + result.getId());
+        return ItemMapper.mapItem(result);
     }
 
     public ItemDto updateItem(ItemDto itemDto, long userId) {
