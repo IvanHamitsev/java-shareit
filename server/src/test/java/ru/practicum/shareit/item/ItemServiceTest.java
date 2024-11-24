@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -68,7 +67,7 @@ class ItemServiceTest {
     }
 
     private ItemDto createItemDto(String name) {
-        return  ItemDto.builder()
+        return ItemDto.builder()
                 .name(name)
                 .description(name + "description")
                 .available(true)

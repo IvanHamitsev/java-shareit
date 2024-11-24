@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.RequestType;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatusType;
 import ru.practicum.shareit.exception.DataOperationException;
 import ru.practicum.shareit.exception.ForbiddenException;
