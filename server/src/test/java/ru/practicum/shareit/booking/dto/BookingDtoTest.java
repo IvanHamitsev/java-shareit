@@ -62,8 +62,13 @@ class BookingDtoTest {
         assertThat(result).extractingJsonPathStringValue("$.item.description").isEqualTo(itemDto.getDescription());
         assertThat(result).extractingJsonPathBooleanValue("$.item.available").isEqualTo(itemDto.getAvailable());
 
-        assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(dtf.format(bookingDto.getStart()));
-        assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(dtf.format(bookingDto.getEnd()));
+        // есть особенность, формат LocalDateTime, приходящий в ответе теста в локальной IDEA содержит 9 символов после
+        // запятой в долях секунды, а на github 7. Поэтому локально использую DateTimeFormatter с указанием 7 символов,
+        // а на github без DateTimeFormatter
+        /*assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(dtf.format(bookingDto.getStart()));
+        assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(dtf.format(bookingDto.getEnd()));*/
+        assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(bookingDto.getStart().toString());
+        assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(bookingDto.getEnd().toString());
         assertThat(result).extractingJsonPathStringValue("$.status").isEqualTo(bookingDto.getStatus());
     }
 }
