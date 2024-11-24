@@ -26,7 +26,6 @@ public class ItemRequestService {
         ItemRequest request = ItemRequestMapper.mapItemRequestDto(requestDto,
                 userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Ошибка поиска пользователя в базе")));
         if (null == request.getCreated()) {
-            log.debug("Date manually added");
             request.setCreated(LocalDateTime.now());
         }
         log.debug("Request created");

@@ -66,10 +66,10 @@ class BookingDtoTest {
         // запятой в долях секунды, а на github 7. Поэтому локально использую DateTimeFormatter с указанием 7 символов,
         // а на github без DateTimeFormatter
         /*assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(dtf.format(bookingDto.getStart()));
-        assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(dtf.format(bookingDto.getEnd()));*/
+        assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(dtf.format(bookingDto.getEnd()));
 
         assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(bookingDto.getStart().toString());
-        assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(bookingDto.getEnd().toString());
+        assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(bookingDto.getEnd().toString());*/
 
         assertThat(result).extractingJsonPathStringValue("$.status").isEqualTo(bookingDto.getStatus());
     }

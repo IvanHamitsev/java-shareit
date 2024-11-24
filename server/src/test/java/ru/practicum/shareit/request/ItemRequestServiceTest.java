@@ -14,7 +14,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -65,11 +64,12 @@ class ItemRequestServiceTest {
     }
 
     private ItemRequestDto createItemRequest(String name, long userId) {
-        LocalDateTime creationTime = LocalDateTime.now();
+        //LocalDateTime creationTime = LocalDateTime.now();
         ItemRequestDto itemRequestDto = ItemRequestDto.builder()
                 .name(name)
                 .description(name + "description")
-                .created(creationTime)
+                //.created(creationTime)
+                .created(null)
                 .build();
         return itemRequestService.createRequest(userId, itemRequestDto);
     }

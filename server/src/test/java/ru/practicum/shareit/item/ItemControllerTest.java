@@ -89,9 +89,14 @@ class ItemControllerTest {
         mockMvc.perform(get("/items/{itemId}", itemsDto.getFirst().getId())
                         .header("X-Sharer-User-Id", userDto.getId())
                         .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemsDto.getFirst().getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(itemsDto.getFirst().getName()), String.class));
         verify(itemService, times(1)).getById(userDto.getId(), itemsDto.getFirst().getId());
+
+        mockMvc.perform(get("/items/{itemId}", itemsDto.getFirst().getId())
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
