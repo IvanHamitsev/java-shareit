@@ -86,10 +86,10 @@ class BookingControllerTest {
                 // есть особенность, формат LocalDateTime, приходящий в ответе теста в локальной IDEA содержит 9 символов после
                 // запятой в долях секунды, а на github 7. Поэтому локально использую DateTimeFormatter с указанием 7 символов,
                 // а на github без DateTimeFormatter
-                /*
-                .andExpect(jsonPath("$.start", is(dtf.format(bookingDto.getStart())), String.class))
-                .andExpect(jsonPath("$.end", is(dtf.format(bookingDto.getEnd())), LocalDateTime.class));
-                */
+
+                /*.andExpect(jsonPath("$.start", is(dtf.format(bookingDto.getStart())), String.class))
+                .andExpect(jsonPath("$.end", is(dtf.format(bookingDto.getEnd())), LocalDateTime.class));*/
+
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString()), String.class))
                 .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString()), LocalDateTime.class));
 

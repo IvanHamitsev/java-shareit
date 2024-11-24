@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -72,26 +71,22 @@ class ItemRequestServiceTest {
                 .description(name + "description")
                 .created(creationTime)
                 .build();
-        User user = userRepository.findById(userId).orElseThrow();
-        ItemRequest itemRequest = ItemRequest.builder()
-                .name(name)
-                .description(name + "description")
-                .user(user)
-                .created(creationTime)
-                .build();
-        var result = requestRepository.save(itemRequest);
-        itemRequestDto.setId(result.getId());
-        return itemRequestDto;
+        return itemRequestService.createRequest(userId, itemRequestDto);
     }
 
     @Test
-    void getAllUserRequests() {
+    void getUserRequests() {
         UserDto user1Dto = createUser("Имя1", "email1@yandex.ru", "login1", LocalDate.now().minusYears(20));
         UserDto user2Dto = createUser("Имя2", "email2@yandex.ru", "login2", LocalDate.now().minusYears(15));
         UserDto user3Dto = createUser("Имя3", "email3@yandex.ru", "login3", LocalDate.now().minusYears(10));
         ItemRequestDto itemRequest1Dto = createItemRequest("nameOfRequest1", user1Dto.getId());
         ItemRequestDto itemRequest2Dto = createItemRequest("nameOfRequest2", user1Dto.getId());
         ItemRequestDto itemRequest3Dto = createItemRequest("nameOfRequest3", user2Dto.getId());
+
+        ItemRequestDto result = itemRequestService.getRequestById(itemRequest1Dto.getId());
+        assertThat(result.getId(), equalTo(itemRequest1Dto.getId()));
+        assertThat(result.getName(), equalTo(itemRequest1Dto.getName()));
+        assertThat(result.getDescription(), equalTo(itemRequest1Dto.getDescription()));
 
         List<ItemRequestDto> listOfUserRequests = itemRequestService.getAllUserRequests(user1Dto.getId());
         assertThat(listOfUserRequests.size(), equalTo(2));
@@ -104,5 +99,8 @@ class ItemRequestServiceTest {
 
         listOfUserRequests = itemRequestService.getAllUserRequests(user3Dto.getId());
         assertThat(listOfUserRequests.size(), equalTo(0));
+
+        listOfUserRequests = itemRequestService.getAllRequests();
+        assertThat(listOfUserRequests.size(), equalTo(3));
     }
 }

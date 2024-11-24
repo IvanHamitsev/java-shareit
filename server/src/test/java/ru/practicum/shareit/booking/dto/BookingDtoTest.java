@@ -70,6 +70,7 @@ class BookingDtoTest {
 
         assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(bookingDto.getStart().toString());
         assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(bookingDto.getEnd().toString());
+
         assertThat(result).extractingJsonPathStringValue("$.status").isEqualTo(bookingDto.getStatus());
     }
 }
