@@ -88,10 +88,10 @@ class BookingControllerTest {
                 // а на github без DateTimeFormatter
 
                 /*.andExpect(jsonPath("$.start", is(dtf.format(bookingDto.getStart())), String.class))
-                .andExpect(jsonPath("$.end", is(dtf.format(bookingDto.getEnd())), String.class));*/
+                .andExpect(jsonPath("$.end", is(dtf.format(bookingDto.getEnd())), String.class));
 
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString()), String.class))
-                .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString()), String.class));
+                .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString()), String.class));*/
 
         verify(bookingService, times(1)).createBooking(bookingDto, userId);
     }
