@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class BookingService {
 
@@ -84,7 +85,9 @@ public class BookingService {
             bookingDto.setBooker(UserMapper.mapUser(user));
             Booking booking = BookingMapper.mapBookingDto(bookingDto, item);
             booking.setStatus(BookingStatusType.WAITING);
-            return BookingMapper.mapBooking(bookingRepository.save(booking));
+            var result = BookingMapper.mapBooking(bookingRepository.save(booking));
+            log.debug(String.format("Created booking id = %d userId = %d ItemID = %d", result.getId(), userId, item.getId()));
+            return result;
         } else {
             throw new DataOperationException("Не может быть забронирован лот с Id = " + item.getId());
         }
@@ -106,7 +109,9 @@ public class BookingService {
         } else {
             booking.setStatus(BookingStatusType.REJECTED);
         }
-        return BookingMapper.mapBooking(bookingRepository.save(booking));
+        var result = BookingMapper.mapBooking(bookingRepository.save(booking));
+        log.debug(String.format("Change booking %d status to %s", result.getId(), result.getStatus()));
+        return result;
     }
 
     public BookingDto getBookingInfo(long userId, long bookingId) {

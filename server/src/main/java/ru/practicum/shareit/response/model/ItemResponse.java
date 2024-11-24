@@ -26,7 +26,7 @@ public class ItemResponse {
     @ManyToOne
     @JoinColumn(name = "ITEM_ID", nullable = false)
     Item item;
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "NAME")
     String name;
     @Column(name = "DESCRIPTION", nullable = false)
     String description;
