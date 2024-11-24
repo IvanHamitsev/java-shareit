@@ -14,11 +14,6 @@ public enum RequestType {
         this.title = title;
     }
 
-    @Override
-    public String toString() {
-        return title;
-    }
-
     public static RequestType fromString(String value) {
         if (value.equals("ALL")) return ALL;
         if (value.equals("CURRENT")) return CURRENT;
@@ -28,4 +23,4 @@ public enum RequestType {
         if (value.equals("REJECTED")) return REJECTED;
         throw new IllegalArgumentException("Некорректный тип запроса " + value);
     }
-    }
+}

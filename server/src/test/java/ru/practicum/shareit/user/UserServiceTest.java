@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.*;
         "spring.datasource.username=testUser",
         "spring.datasource.password=testpass"})
 */
-@TestPropertySource(properties = {"spring.datasource.url=jdbc:h2:file:./db/shareit-test",
+@TestPropertySource(properties = {"spring.datasource.url=jdbc:h2:mem:shareit-test",
         "spring.datasource.driverClassName=org.h2.Driver",
         "spring.datasource.username=sa",
         "spring.datasource.password=password",

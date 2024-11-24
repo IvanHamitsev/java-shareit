@@ -8,7 +8,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -20,6 +23,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import(ItemService.class)
@@ -31,7 +36,7 @@ import static org.hamcrest.Matchers.greaterThan;
         "spring.datasource.username=testUser",
         "spring.datasource.password=testpass"})
 */
-@TestPropertySource(properties = {"spring.datasource.url=jdbc:h2:file:./db/shareit-test",
+@TestPropertySource(properties = {"spring.datasource.url=jdbc:h2:mem:shareit-test",
         "spring.datasource.driverClassName=org.h2.Driver",
         "spring.datasource.username=sa",
         "spring.datasource.password=password",
@@ -82,7 +87,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void getAllUserItems() {
+    void getItems() {
         UserDto user1Dto = createUser("Имя1", "email1@yandex.ru", "login1", LocalDate.now().minusYears(20));
         UserDto user2Dto = createUser("Имя2", "email2@yandex.ru", "login2", LocalDate.now().minusYears(15));
         UserDto user3Dto = createUser("Имя3", "email3@yandex.ru", "login3", LocalDate.now().minusYears(10));
@@ -92,8 +97,22 @@ class ItemServiceTest {
         item1Dto = itemService.createItem(item1Dto, user1Dto.getId());
         item2Dto = itemService.createItem(item2Dto, user1Dto.getId());
         item3Dto = itemService.createItem(item3Dto, user2Dto.getId());
+        item1Dto = itemService.updateItem(item1Dto, user1Dto.getId());
 
-        List<ItemDto> obtainedItems = itemService.getAllUserItems(user1Dto.getId());
+        long item1Id = item1Dto.getId();
+        long user1Id = user1Dto.getId();
+
+        assertThrows(NotFoundException.class, () -> itemService.getById(user1Id + 10, item1Id + 10));
+        ItemDto itemDto = itemService.getById(user1Id, item1Id);
+        assertNotNull(itemDto);
+
+        assertThrows(ValidationException.class, () -> itemService.searchItems(user1Id + 10, "testToFind"));
+        assertThat(itemService.searchItems(user1Id, "").size(), equalTo(0));
+
+        List<ItemDto> obtainedItems = itemService.searchItems(user1Id, "Name");
+        assertThat(obtainedItems.size(), equalTo(3));
+
+        obtainedItems = itemService.getAllUserItems(user1Dto.getId());
         assertThat(obtainedItems.size(), equalTo(2));
         assertThat(obtainedItems.get(0).getId(), equalTo(item1Dto.getId()));
         assertThat(obtainedItems.get(0).getName(), equalTo(item1Dto.getName()));

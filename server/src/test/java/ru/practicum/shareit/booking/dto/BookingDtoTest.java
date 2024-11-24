@@ -67,6 +67,7 @@ class BookingDtoTest {
         // а на github без DateTimeFormatter
         /*assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(dtf.format(bookingDto.getStart()));
         assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(dtf.format(bookingDto.getEnd()));*/
+
         assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo(bookingDto.getStart().toString());
         assertThat(result).extractingJsonPathStringValue("$.end").isEqualTo(bookingDto.getEnd().toString());
         assertThat(result).extractingJsonPathStringValue("$.status").isEqualTo(bookingDto.getStatus());

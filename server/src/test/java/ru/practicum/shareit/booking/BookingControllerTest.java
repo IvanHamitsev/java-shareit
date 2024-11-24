@@ -86,8 +86,10 @@ class BookingControllerTest {
                 // есть особенность, формат LocalDateTime, приходящий в ответе теста в локальной IDEA содержит 9 символов после
                 // запятой в долях секунды, а на github 7. Поэтому локально использую DateTimeFormatter с указанием 7 символов,
                 // а на github без DateTimeFormatter
-                //.andExpect(jsonPath("$.start", is(dtf.format(bookingDto.getStart())), String.class))
-                //.andExpect(jsonPath("$.end", is(dtf.format(bookingDto.getEnd())), LocalDateTime.class));
+                /*
+                .andExpect(jsonPath("$.start", is(dtf.format(bookingDto.getStart())), String.class))
+                .andExpect(jsonPath("$.end", is(dtf.format(bookingDto.getEnd())), LocalDateTime.class));
+                */
                 .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString()), String.class))
                 .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString()), LocalDateTime.class));
 
@@ -151,6 +153,59 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].id", is(bookings.getFirst().getId()), Long.class));
 
         verify(bookingService, times(1)).getAllUserBookings(userId, RequestType.ALL, 0, 10);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("state", "CURRENT")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(bookingService, times(1)).getAllUserBookings(userId, RequestType.CURRENT, 0, 10);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("state", "PAST")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(bookingService, times(1)).getAllUserBookings(userId, RequestType.PAST, 0, 10);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("state", "FUTURE")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(bookingService, times(1)).getAllUserBookings(userId, RequestType.FUTURE, 0, 10);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("state", "WAITING")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(bookingService, times(1)).getAllUserBookings(userId, RequestType.WAITING, 0, 10);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("state", "REJECTED")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(bookingService, times(1)).getAllUserBookings(userId, RequestType.REJECTED, 0, 10);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .param("state", "WRONG_STATE")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
     }
 
     @Test
