@@ -84,9 +84,9 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.booker.name", is(bookingDto.getBooker().getName()), String.class))
                 .andExpect(jsonPath("$.item.name", is(bookingDto.getItem().getName()), String.class))
                 //.andExpect(jsonPath("$.start", is(dtf.format(bookingDto.getStart())), String.class))
-                .andExpect(jsonPath("$.start", is(bookingDto.getStart()), String.class))
+                .andExpect(jsonPath("$.start", is(bookingDto.getStart().toString()), String.class))
                 //.andExpect(jsonPath("$.end", is(dtf.format(bookingDto.getEnd())), LocalDateTime.class));
-                .andExpect(jsonPath("$.end", is(bookingDto.getEnd()), LocalDateTime.class));
+                .andExpect(jsonPath("$.end", is(bookingDto.getEnd().toString()), LocalDateTime.class));
         verify(bookingService, times(1)).createBooking(bookingDto, userId);
     }
 
