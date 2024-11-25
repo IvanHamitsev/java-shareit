@@ -55,8 +55,11 @@ public class UserService {
         return UserMapper.mapUser(userRepository.save(newUser));
     }
 
-    public void deleteUserById(long userId) {
+    public UserDto deleteUserById(long userId) {
+        var user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String
+                .format("Удаление невозможно, переданный id %d пользователя не найден", userId)));
         userRepository.deleteById(userId);
+        return UserMapper.mapUser(user);
     }
 
     protected void deepValidate(UserDto userDto) {
