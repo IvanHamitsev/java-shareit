@@ -10,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
-import ru.practicum.shareit.booking.dto.RequestType;
 
 @Controller
 @RequestMapping(path = "/bookings")
@@ -31,7 +30,7 @@ public class BookingController {
     public ResponseEntity<Object> patchBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                                @PathVariable long bookingId,
                                                @RequestParam Boolean approved) {
-        log.debug("Get patch request, request = " + approved);
+        log.info("Get patch request, request = " + approved);
         return bookingClient.changeBookingStatus(userId, bookingId, approved);
     }
 
@@ -47,15 +46,15 @@ public class BookingController {
                                               @RequestParam(name = "state", defaultValue = "ALL") String stateParam,
                                               @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                               @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        RequestType state = RequestType.fromString(stateParam);
+
         log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
-        return bookingClient.getBookings(userId, state, from, size);
+        return bookingClient.getBookings(userId, stateParam, from, size);
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getAllOwnerBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                                      @RequestParam(name = "state", defaultValue = "ALL") String stateParam) {
-        RequestType state = RequestType.fromString(stateParam);
-        return bookingClient.getAllOwnerBookings(userId, state);
+        log.info("Get getAllOwnerBooking with state {}, userId={}", stateParam, userId);
+        return bookingClient.getAllOwnerBookings(userId, stateParam);
     }
 }

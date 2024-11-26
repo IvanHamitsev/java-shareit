@@ -29,7 +29,8 @@ public class BookingClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getBookings(long userId, RequestType state, Integer from, Integer size) {
+    public ResponseEntity<Object> getBookings(long userId, String stateParam, Integer from, Integer size) {
+        RequestType state = RequestType.fromString(stateParam);
         Map<String, Object> parameters = Map.of(
                 "state", state.name(),
                 "from", from,
@@ -51,7 +52,8 @@ public class BookingClient extends BaseClient {
         return patchParams(path, userId, parameters, null);
     }
 
-    public ResponseEntity<Object> getAllOwnerBookings(long userId, RequestType state) {
+    public ResponseEntity<Object> getAllOwnerBookings(long userId, String stateParam) {
+        RequestType state = RequestType.fromString(stateParam);
         Map<String, Object> parameters = Map.of("state", state.name());
         return get("/owner", userId, parameters);
     }

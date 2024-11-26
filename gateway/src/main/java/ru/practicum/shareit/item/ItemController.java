@@ -56,8 +56,7 @@ public class ItemController {
     public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
                                              @RequestBody ItemDto itemDto,
                                              @PathVariable long itemId) {
-        itemDto.setId(itemId);
-        return itemClient.updateItem(userId, itemDto);
+        return itemClient.updateItem(userId, itemId, itemDto);
     }
 
     @DeleteMapping("/{itemId}")

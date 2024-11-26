@@ -48,7 +48,8 @@ public class ItemClient extends BaseClient {
         return post("/" + itemId + "/comment", userId, itemResponseDto);
     }
 
-    public ResponseEntity<Object> updateItem(long userId, ItemDto itemDto) {
+    public ResponseEntity<Object> updateItem(long userId, long itemId, ItemDto itemDto) {
+        itemDto.setId(itemId);
         return patch("/" + itemDto.getId(), userId, itemDto);
     }
 

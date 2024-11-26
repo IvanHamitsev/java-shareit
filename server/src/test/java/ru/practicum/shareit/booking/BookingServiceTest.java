@@ -139,9 +139,9 @@ class BookingServiceTest {
 
         assertThat(resultBookingList, equalTo(List.of(booking2Dto)));
 
-        assertDoesNotThrow(() -> bookingService.deepValidate(booking1Dto));
+        assertDoesNotThrow(() -> bookingService.validateBookingDto(booking1Dto));
         booking1Dto.setEnd(booking1Dto.getStart());
-        assertThrows(DataOperationException.class, () -> bookingService.deepValidate(booking1Dto));
+        assertThrows(DataOperationException.class, () -> bookingService.validateBookingDto(booking1Dto));
 
         resultBookingList = bookingService.getAllUserBookings(userDto.getId(), RequestType.ALL, 0, 10);
         assertThat(resultBookingList.size(), equalTo(3));

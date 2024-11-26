@@ -13,6 +13,7 @@ import ru.practicum.shareit.booking.model.BookingStatusType;
 import ru.practicum.shareit.exception.DataOperationException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
@@ -35,7 +36,8 @@ public class BookingService {
     public List<BookingDto> getAllUserBookings(Long userId, RequestType state, Integer from, Integer size) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с Id %d не найден", userId)));
-        List<Booking> bookingList = new ArrayList<>();
+        List<Booking> bookingList;
+        validateRange(from, size);
         Pageable page = PageRequest.of(from, size);
         LocalDateTime time = LocalDateTime.now();
         switch (state) {
@@ -46,10 +48,8 @@ public class BookingService {
                     .findByUserIdAndBookingEndBeforeOrderByBookingStart(userId, time, page);
             case FUTURE -> bookingList = bookingRepository
                     .findByUserIdAndBookingStartAfterOrderByBookingStart(userId, time, page);
-            case WAITING -> bookingList = bookingRepository
-                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.WAITING, page);
-            case REJECTED -> bookingList = bookingRepository
-                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.REJECTED, page);
+            default -> bookingList = bookingRepository
+                    .findByUserIdAndStatusOrderByBookingStart(userId, BookingStatusType.fromString(state.toString()), page);
         }
         return bookingList.parallelStream()
                 .map(BookingMapper::mapBooking)
@@ -74,7 +74,7 @@ public class BookingService {
     }
 
     public BookingDto createBooking(BookingDto bookingDto, long userId) {
-        deepValidate(bookingDto);
+        validateBookingDto(bookingDto);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Не найден пользователь c userId = " + userId));
         Item item = itemRepository.findById(bookingDto.getItemId())
@@ -124,10 +124,17 @@ public class BookingService {
         return BookingMapper.mapBooking(booking);
     }
 
-    protected void deepValidate(BookingDto bookingDto) {
+    protected void validateBookingDto(BookingDto bookingDto) {
         // Дополнительная валидация сущности по сложным связям полей
         if (bookingDto.getStart().equals(bookingDto.getEnd())) {
             throw new DataOperationException("Время начала и окончания бронирования совпадают " + bookingDto.getStart());
+        }
+    }
+
+    protected void validateRange(Integer from, Integer size) {
+        if ((from < 0) ||
+                (size < 1)) {
+            throw new ValidationException(String.format("Задан некорректный диапазон пагинации from=%d size=%d", from, size));
         }
     }
 }
